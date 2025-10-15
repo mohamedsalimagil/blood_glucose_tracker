@@ -2,25 +2,34 @@ import sqlite3
 import os
 
 class Database:
-    def __init__(self, db_name="blood_glucose.db"):
-        db_folder = "data"
-        if not os.path.exists(db_folder):
-            os.makedirs(db_folder)
-        db_path = os.path.join(db_folder, db_name)
+    _connection = None
+    _cursor = None
 
-        self.connection = sqlite3.connect(db_path)
-        self.cursor = self.connection.cursor()
+    @classmethod
+    def connect(cls, db_name="blood_glucose.db"):
+        """Creates a single shared connection if not active."""
+        if cls._connection is None:
+            db_folder = "data"
+            if not os.path.exists(db_folder):
+                os.makedirs(db_folder)
+            db_path = os.path.join(db_folder, db_name)
 
-    def execute_query(self, query, params=()):
-        try:
-            self.cursor.execute(query, params)
-            self.connection.commit()
-            return self.cursor
-        except sqlite3.Error as e:
-            print(f"Database error: {e}")
+            cls._connection = sqlite3.connect(db_path)
+            cls._cursor = cls._connection.cursor()
 
-    def get_cursor(self):
-        return self.cursor
+        return cls._connection
 
-    def close(self):
-        self.connection.close()
+    @classmethod
+    def get_cursor(cls):
+        """Return the existing cursor from the shared connection."""
+        if cls._cursor is None:
+            cls.connect()
+        return cls._cursor
+
+    @classmethod
+    def close(cls):
+        """Close the connection if it exists."""
+        if cls._connection:
+            cls._connection.close()
+            cls._connection = None
+            cls._cursor = None
