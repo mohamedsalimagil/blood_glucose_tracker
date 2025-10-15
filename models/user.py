@@ -1,117 +1,93 @@
 from db.database import Database
-from datetime import datetime
 
-class GlucoseEntry:
-    def __init__(self, user_id, value_mmol, notes=None, timestamp=None, id=None):
+class User:
+    def __init__(self, name, age, email, id=None):
         self.id = id
-        self.user_id = user_id
-        self.value_mmol = value_mmol
-        self.notes = notes
-        self.timestamp = timestamp or datetime.now().isoformat()
+        self.name = name
+        self.age = age
+        self.email = email
 
     @classmethod
     def create_table(cls):
         db = Database()
         db.execute_query("""
-            CREATE TABLE IF NOT EXISTS glucose_entries (
+            CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                value_mmol REAL NOT NULL,
-                timestamp TEXT NOT NULL,
-                notes TEXT,
-                FOREIGN KEY (user_id) REFERENCES users(id)
+                name TEXT NOT NULL,
+                age INTEGER,
+                email TEXT UNIQUE
             );
         """)
         db.close()
 
     @classmethod
-    def create(cls, user_id, value_mmol, notes=None):
+    def create(cls, name, age, email):
         db = Database()
-        timestamp = datetime.now().isoformat()
         cursor = db.execute_query(
-            "INSERT INTO glucose_entries (user_id, value_mmol, timestamp, notes) VALUES (?, ?, ?, ?)",
-            (user_id, value_mmol, timestamp, notes)
+            "INSERT INTO users (name, age, email) VALUES (?, ?, ?)",
+            (name, age, email)
         )
-        entry_id = cursor.lastrowid
+        user_id = cursor.lastrowid
         db.close()
-        return cls(user_id, value_mmol, notes, timestamp, entry_id)
+        return cls(name, age, email, user_id)
 
     @classmethod
     def get_all(cls):
         db = Database()
-        cursor = db.execute_query(
-            "SELECT id, user_id, value_mmol, timestamp, notes FROM glucose_entries"
-        )
+        cursor = db.execute_query("SELECT id, name, age, email FROM users")
         rows = cursor.fetchall()
         db.close()
-        return [cls(row[1], row[2], row[4], row[3], row[0]) for row in rows]
+        return [cls(row[1], row[2], row[3], row[0]) for row in rows]
 
     @classmethod
-    def find_by_id(cls, entry_id):
+    def find_by_id(cls, user_id):
         db = Database()
         cursor = db.execute_query(
-            "SELECT id, user_id, value_mmol, timestamp, notes FROM glucose_entries WHERE id = ?",
-            (entry_id,)
+            "SELECT id, name, age, email FROM users WHERE id = ?",
+            (user_id,)
         )
         row = cursor.fetchone()
         db.close()
         if row:
-            return cls(row[1], row[2], row[4], row[3], row[0])
+            return cls(row[1], row[2], row[3], row[0])
         return None
 
     @classmethod
-    def find_by_user(cls, user_id):
+    def update(cls, user_id, name=None, age=None, email=None):
         db = Database()
-        cursor = db.execute_query(
-            "SELECT id, user_id, value_mmol, timestamp, notes FROM glucose_entries WHERE user_id = ?",
-            (user_id,)
-        )
-        rows = cursor.fetchall()
-        db.close()
-        return [cls(row[1], row[2], row[4], row[3], row[0]) for row in rows]
-    
-    @classmethod
-    def update(cls, entry_id, value_mmol=None, notes=None):
-        conn = Database().connect()
-        cursor = conn.cursor()
         fields = []
         values = []
 
-        if value_mmol is not None:
-            fields.append("value_mmol = ?")
-            values.append(value_mmol)
+        if name is not None:
+            fields.append("name = ?")
+            values.append(name)
 
-        if notes is not None:
-            fields.append("notes = ?")
-            values.append(notes)
+        if age is not None:
+            fields.append("age = ?")
+            values.append(age)
+
+        if email is not None:
+            fields.append("email = ?")
+            values.append(email)
 
         if not fields:
-            raise ValueError("No fields to update")
+            raise ValueError("No data provided to update.")
 
-        values.append(entry_id)
-        query = f"UPDATE glucose_entries SET {', '.join(fields)} WHERE id = ?"
+        values.append(user_id)
+        query = f"UPDATE users SET {', '.join(fields)} WHERE id = ?"
 
         try:
-            cursor.execute(query, tuple(values))
-            conn.commit()
-            print(f" Entry {entry_id} updated successfully.")
-            return cls.find_by_id(entry_id)
+            db.execute_query(query, tuple(values))
+            print(f"User {user_id} updated successfully.")
+            return cls.find_by_id(user_id)
         except Exception as e:
             print("Database error:", e)
             return None
-
+        finally:
+            db.close()
 
     @classmethod
-    def delete(cls, entry_id):
-        conn = Database.connect()
-        cursor = conn.cursor()
-
-        try:
-            cursor.execute("DELETE FROM glucose_entries WHERE id = ?", (entry_id,))
-            conn.commit()
-            print(f" Entry {entry_id} deleted.")
-            return True
-        except Exception as e:
-            print("Database error:", e)
-            return False
-
+    def delete(cls, user_id):
+        db = Database()
+        db.execute_query("DELETE FROM users WHERE id = ?", (user_id,))
+        db.close()

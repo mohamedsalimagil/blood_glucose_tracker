@@ -27,6 +27,18 @@ class Database:
         return cls._cursor
 
     @classmethod
+    def execute_query(cls, query, params=()):
+        conn = cls.connect()
+        cursor = cls.get_cursor()
+        try:
+            cursor.execute(query, params)
+            conn.commit()
+            return cursor
+        except sqlite3.Error as e:
+            print(f"Database error: {e}")
+            return None
+
+    @classmethod
     def close(cls):
         """Close the connection if it exists."""
         if cls._connection:
