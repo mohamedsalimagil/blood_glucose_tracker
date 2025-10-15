@@ -1,4 +1,5 @@
 from db.database import Database
+from models.glucose_entry import GlucoseEntry
 
 class User:
     def __init__(self, name, age, email, id=None):
@@ -9,8 +10,9 @@ class User:
 
     @classmethod
     def create_table(cls):
-        db = Database()
-        db.execute_query("""
+        conn = Database.connect()
+        cursor = Database.get_cursor()
+        cursor.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -18,43 +20,46 @@ class User:
                 email TEXT UNIQUE
             );
         """)
-        db.close()
+        conn.commit()
 
     @classmethod
     def create(cls, name, age, email):
-        db = Database()
-        cursor = db.execute_query(
+        conn = Database.connect()
+        cursor = Database.get_cursor()
+        cursor.execute(
             "INSERT INTO users (name, age, email) VALUES (?, ?, ?)",
             (name, age, email)
         )
+        conn.commit()
         user_id = cursor.lastrowid
-        db.close()
         return cls(name, age, email, user_id)
 
     @classmethod
     def get_all(cls):
-        db = Database()
-        cursor = db.execute_query("SELECT id, name, age, email FROM users")
+        conn = Database.connect()
+        cursor = Database.get_cursor()
+        cursor.execute("SELECT id, name, age, email FROM users")
         rows = cursor.fetchall()
-        db.close()
         return [cls(row[1], row[2], row[3], row[0]) for row in rows]
 
     @classmethod
     def find_by_id(cls, user_id):
-        db = Database()
-        cursor = db.execute_query(
+        conn = Database.connect()
+        cursor = Database.get_cursor()
+        cursor.execute(
             "SELECT id, name, age, email FROM users WHERE id = ?",
             (user_id,)
         )
         row = cursor.fetchone()
-        db.close()
         if row:
             return cls(row[1], row[2], row[3], row[0])
         return None
 
     @classmethod
     def update(cls, user_id, name=None, age=None, email=None):
-        db = Database()
+        conn = Database.connect()
+        cursor = Database.get_cursor()
+
         fields = []
         values = []
 
@@ -71,23 +76,35 @@ class User:
             values.append(email)
 
         if not fields:
-            raise ValueError("No data provided to update.")
+            raise ValueError("No fields to update")
 
         values.append(user_id)
         query = f"UPDATE users SET {', '.join(fields)} WHERE id = ?"
 
         try:
-            db.execute_query(query, tuple(values))
+            cursor.execute(query, tuple(values))
+            conn.commit()
             print(f"User {user_id} updated successfully.")
             return cls.find_by_id(user_id)
         except Exception as e:
             print("Database error:", e)
             return None
-        finally:
-            db.close()
 
     @classmethod
     def delete(cls, user_id):
-        db = Database()
-        db.execute_query("DELETE FROM users WHERE id = ?", (user_id,))
-        db.close()
+        conn = Database.connect()
+        cursor = Database.get_cursor()
+
+        # Delete related glucose entries first
+        cursor.execute("DELETE FROM glucose_entries WHERE user_id = ?", (user_id,))
+
+        cursor.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+        print(f"User {user_id} and related entries deleted.")
+
+    # Relationship methods
+    def glucose_entries(self):
+        return GlucoseEntry.find_by_user(self.id)
+
+    def add_glucose_entry(self, value_mmol, notes=None):
+        return GlucoseEntry.create(self.id, value_mmol, notes)

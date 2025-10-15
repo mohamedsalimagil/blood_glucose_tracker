@@ -14,14 +14,14 @@ class GlucoseEntry:
         conn = Database.connect()
         cursor = Database.get_cursor()
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS glucose_entries (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id INTEGER NOT NULL,
-                value_mmol REAL NOT NULL,
-                timestamp TEXT NOT NULL,
-                notes TEXT,
-                FOREIGN KEY (user_id) REFERENCES users(id)
-            );
+        CREATE TABLE IF NOT EXISTS glucose_entries (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            value_mmol REAL NOT NULL,
+            timestamp TEXT,
+            notes TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
         """)
         conn.commit()
 
