@@ -28,9 +28,24 @@ def menu():
         choice = click.prompt("Enter your choice", type=int)
 
         if choice == 1:
-            name = click.prompt("Enter name")
+            # ✅ Name validation with spaces allowed
+            name = click.prompt("Enter name").strip()
+            if not all(part.isalpha() for part in name.split()) or len(name) < 2:
+                click.echo("❌ Name must contain only letters and spaces, with at least 2 characters.")
+                continue
+
+            # ✅ Age must be a positive integer
             age = click.prompt("Enter age", type=int)
+            if age <= 0:
+                click.echo("❌ Age must be a positive integer.")
+                continue
+
+            # ✅ Basic email validation
             email = click.prompt("Enter email")
+            if "@" not in email or "." not in email:
+                click.echo("❌ Invalid email format.")
+                continue
+
             try:
                 user = User.create(name, age, email)
                 click.echo(f"✅ User created: {user.id} | {user.name} | {user.email}")
