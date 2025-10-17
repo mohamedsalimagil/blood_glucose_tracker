@@ -6,21 +6,22 @@ The Blood Glucose Tracker is a command-line application designed to help users l
 
 ## Project Structure
 .
-├── cli.py                  # Handles command-line interface menus and user interactions
-├── controllers.py          # Business logic connecting models and CLI actions
+├── cli.py                 # Handles interactive menu and user commands
+├── controllers.py         # Business logic connecting models and CLI actions
 ├── data/
-│   └── blood_glucose.db    # SQLite database file
+│   └── blood_glucose.db   # SQLite database file
 ├── db/
 │   ├── __init__.py
-│   └── database.py         # Database connection and initialization
-├── main.py                 # Entry point to start the application
+│   └── database.py        # Database connection and initialization
+├── main.py                # Entry point to start the application
 ├── models/
 │   ├── __init__.py
-│   ├── glucose_entry.py    # GlucoseEntry model representing glucose data
-│   └── user.py             # User model representing application users
-├── requirements.txt        # Python dependencies
-├── utils.py                # Helper functions
-└── venv/                   # Virtual environment (optional)
+│   ├── glucose_entry.py   # GlucoseEntry model representing glucose data
+│   └── user.py            # User model representing application users
+├── requirements.txt       # Python dependencies
+├── utils.py               # Helper functions
+└── venv/                  # Virtual environment (optional)
+
 
 ## Features
 - Create and manage users
