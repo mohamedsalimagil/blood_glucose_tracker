@@ -1,6 +1,7 @@
 # Blood Glucose Tracker
 
-The Blood Glucose Tracker is a command-line application designed to help users log, view, and manage blood glucose readings. It uses SQLite for persistent storage and follows a modular structure with models, controllers, and utilities.
+The Blood Glucose Tracker is more than just a command-line app—it’s a practical tool designed to help people manage real health needs. Whether you're living with diabetes, monitoring a loved one, or keeping track for medical guidance, this tracker makes it easy to log, review, and update glucose readings in a structured way. With persistent storage using SQLite and a clean modular architecture, it provides a reliable way to record daily health data that actually matters.
+
 
 
 
