@@ -23,34 +23,32 @@ def menu():
         click.echo("3. Add Glucose Entry")
         click.echo("4. View Glucose Entries for a User")
         click.echo("5. Delete User")
+        click.echo("6. Edit Glucose Entry")  
         click.echo("0. Exit")
 
         choice = click.prompt("Enter your choice", type=int)
 
         if choice == 1:
-            # ✅ Name validation with spaces allowed
             name = click.prompt("Enter name").strip()
             if not all(part.isalpha() for part in name.split()) or len(name) < 2:
-                click.echo("❌ Name must contain only letters and spaces, with at least 2 characters.")
+                click.echo(" Name must contain only letters and spaces, with at least 2 characters.")
                 continue
 
-            # ✅ Age must be a positive integer
             age = click.prompt("Enter age", type=int)
             if age <= 0:
-                click.echo("❌ Age must be a positive integer.")
+                click.echo(" Age must be a positive integer.")
                 continue
 
-            # ✅ Basic email validation
             email = click.prompt("Enter email")
             if "@" not in email or "." not in email:
-                click.echo("❌ Invalid email format.")
+                click.echo(" Invalid email format.")
                 continue
 
             try:
                 user = User.create(name, age, email)
-                click.echo(f"✅ User created: {user.id} | {user.name} | {user.email}")
+                click.echo(f" User created: {user.id} | {user.name} | {user.email}")
             except Exception as e:
-                click.echo(f"❌ Error creating user: {e}")
+                click.echo(f"Error creating user: {e}")
 
         elif choice == 2:
             users = User.get_all()
@@ -68,7 +66,7 @@ def menu():
                 click.echo("User not found.")
                 continue
             entry = GlucoseEntry.create(user_id, value, notes)
-            click.echo(f"✅ Entry added: {entry.id} | {entry.value_mmol} mmol/L | {format_timestamp(entry.timestamp)} | {entry.notes}")
+            click.echo(f" Entry added: {entry.id} | {entry.value_mmol} mmol/L | {format_timestamp(entry.timestamp)} | {entry.notes}")
 
         elif choice == 4:
             user_id = click.prompt("Enter user ID", type=int)
@@ -93,6 +91,37 @@ def menu():
                 GlucoseEntry.delete(e.id)
             User.delete(user_id)
             click.echo(f"User {user_id} and related entries deleted.")
+
+        elif choice == 6: 
+            entry_id = click.prompt("Enter Entry ID to edit", type=int)
+            entry = GlucoseEntry.find_by_id(entry_id)
+            if not entry:
+                click.echo("Entry not found.")
+                continue
+
+            new_value = click.prompt(
+                f"Current value is {entry.value_mmol}. Enter new value or press Enter to keep",
+                default="",
+                show_default=False
+            )
+
+            new_notes = click.prompt(
+                f"Current notes are '{entry.notes}'. Enter new notes or press Enter to keep",
+                default="",
+                show_default=False
+            )
+
+            value_to_update = float(new_value) if new_value else None
+            notes_to_update = new_notes if new_notes else None
+
+            updated = GlucoseEntry.update(entry_id, value_to_update, notes_to_update)
+            if updated:
+                click.echo(
+                    f" Updated: {updated.id} | {updated.value_mmol} mmol/L | "
+                    f"{format_timestamp(updated.timestamp)} | {updated.notes}"
+                )
+            else:
+                click.echo(" Update failed.")
 
         elif choice == 0:
             click.echo("Goodbye!")
