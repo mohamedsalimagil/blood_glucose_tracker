@@ -30,7 +30,9 @@ def menu():
     
     # This while loop keeps the app running until the user chooses to exit
     while True:
-        click.echo("\n=== Blood Glucose Tracker  ===")
+        click.echo("\n╭──────────────────────────────────────────────╮")
+        click.echo("│  🩸 BLOOD GLUCOSE TRACKER - MAIN MENU 🩸     │")
+        click.echo("╰──────────────────────────────────────────────╯")
         click.echo("1. Create User")
         click.echo("2. View All Users")
         click.echo("3. Add Glucose Entry")
