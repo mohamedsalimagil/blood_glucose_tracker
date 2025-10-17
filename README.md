@@ -5,7 +5,7 @@ The Blood Glucose Tracker is a command-line application designed to help users l
 
 
 ## Project Structure
-.
+```
 ├── cli.py                 # Handles interactive menu and user commands
 ├── controllers.py         # Business logic connecting models and CLI actions
 ├── data/
@@ -21,6 +21,7 @@ The Blood Glucose Tracker is a command-line application designed to help users l
 ├── requirements.txt       # Python dependencies
 ├── utils.py               # Helper functions
 └── venv/                  # Virtual environment (optional)
+```
 
 
 ## Features
