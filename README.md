@@ -41,7 +41,7 @@ python3 -m venv venv && source venv/bin/activate || venv\Scripts\activate
 pip install -r requirements.txt
 
 ## Running the Application
-python main.py
+python cli.py
 
 You will see a menu with options:
 1. Create User
