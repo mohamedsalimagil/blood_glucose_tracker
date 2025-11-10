@@ -53,7 +53,9 @@ You will see a menu with options:
 0. Exit
 
 ## Database
-The database file is located at data/blood_glucose.db. It is created automatically if it does not exist.
+The database file is located at `data/blood_glucose.db`. 
+It is created automatically when you run the application for the first time along with the required tables.
+
 
 ## Requirements
 Install all dependencies with:
