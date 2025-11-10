@@ -3,6 +3,9 @@ import random
 from datetime import datetime
 from models.user import User
 from models.glucose_entry import GlucoseEntry
+from db.database import Database
+Database.init_db()   # <-- creates DB + tables automatically
+
 
 # Helper function to display timestamps in a 12-hour readable format (e.g., 02:30 PM)
 def format_timestamp(ts):

@@ -45,3 +45,27 @@ class Database:
             cls._connection.close()
             cls._connection = None
             cls._cursor = None
+    @classmethod
+    def init_db(cls):
+        """Creates required tables if they don't exist."""
+        conn = cls.connect()
+        cursor = cls.get_cursor()
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL UNIQUE
+            );
+        """)
+
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS glucose_entries (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                reading REAL NOT NULL,
+                date TEXT NOT NULL,
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            );
+        """)
+
+        conn.commit()
