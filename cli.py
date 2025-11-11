@@ -125,17 +125,30 @@ def menu():
             if not entry:
                 click.echo("Entry not found.")
                 continue
+
+            value_to_update = None
             new_value = click.prompt(
                 f"Current value is {entry.value_mmol}. Enter new value or press Enter to keep",
                 default="",
                 show_default=False,
             )
+            if new_value:
+                try:
+                    value_to_update = float(new_value)
+                    if value_to_update <= 0:
+                        click.echo("Glucose value must be a positive number.")
+                        continue
+                except ValueError:
+                    click.echo(
+                        "Invalid input. You can only enter numbers (e.g., 9.5 or 95)."
+                    )
+                    continue
+
             new_notes = click.prompt(
                 f"Current notes are '{entry.notes}'. Enter new notes or press Enter to keep",
                 default="",
                 show_default=False,
             )
-            value_to_update = float(new_value) if new_value else None
             notes_to_update = new_notes if new_notes else None
             updated = GlucoseEntry.update(entry_id, value_to_update, notes_to_update)
             if updated:
