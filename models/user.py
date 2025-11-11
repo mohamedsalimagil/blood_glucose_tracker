@@ -1,6 +1,7 @@
 from db.database import Database
 from models.glucose_entry import GlucoseEntry
 
+
 class User:
     def __init__(self, name, age, email, id=None):
         self.id = id
@@ -12,14 +13,16 @@ class User:
     def create_table(cls):
         conn = Database.connect()
         cursor = Database.get_cursor()
-        cursor.execute("""
+        cursor.execute(
+            """
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
                 age INTEGER,
                 email TEXT UNIQUE
             );
-        """)
+        """
+        )
         conn.commit()
 
     @classmethod
@@ -27,8 +30,7 @@ class User:
         conn = Database.connect()
         cursor = Database.get_cursor()
         cursor.execute(
-            "INSERT INTO users (name, age, email) VALUES (?, ?, ?)",
-            (name, age, email)
+            "INSERT INTO users (name, age, email) VALUES (?, ?, ?)", (name, age, email)
         )
         conn.commit()
         user_id = cursor.lastrowid
@@ -47,8 +49,7 @@ class User:
         conn = Database.connect()
         cursor = Database.get_cursor()
         cursor.execute(
-            "SELECT id, name, age, email FROM users WHERE id = ?",
-            (user_id,)
+            "SELECT id, name, age, email FROM users WHERE id = ?", (user_id,)
         )
         row = cursor.fetchone()
         if row:
