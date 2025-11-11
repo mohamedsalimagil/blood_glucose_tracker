@@ -57,7 +57,9 @@ class Database:
             """
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
-                name TEXT NOT NULL UNIQUE
+                name TEXT NOT NULL UNIQUE,
+                age INTEGER NOT NULL,
+                email TEXT NOT NULL UNIQUE
             );
         """
         )
@@ -67,11 +69,13 @@ class Database:
             CREATE TABLE IF NOT EXISTS glucose_entries (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
-                reading REAL NOT NULL,
-                date TEXT NOT NULL,
+                value_mmol REAL NOT NULL,
+                timestamp TEXT NOT NULL,
+                notes TEXT,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             );
         """
         )
 
         conn.commit()
+        print("✓ Database tables initialized")
